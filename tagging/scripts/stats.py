@@ -21,62 +21,91 @@ class POSStats:
         """
         tagged_sents -- corpus (list/iterable/generator of tagged sentences)
         """
-        # WORK HERE!!
-        # COLLECT REQUIRED STATISTICS INTO DICTIONARIES.
+
+        # Convert 'nltk.collections.LazyMap' to 'list' to better handling
+        taggedSentsList = list(tagged_sents)
+
+        # Count total number of sentences
+        self.sentsCount = len(taggedSentsList)
+
+        # Count total number of tokens
+        self.tokenCount = 0
+        for taggedSent in taggedSentsList:
+            self.tokenCount += len(taggedSent)
+
+        # Count appearances of every unique word and tag
+        self.wordsAppearances = defaultdict(lambda: 0)
+        self.tagsAppearances = defaultdict(lambda: 0)
+        for taggedSent in taggedSentsList:
+            for word, tag in taggedSent:
+                self.wordsAppearances[word] += 1
+                self.tagsAppearances[tag] += 1
+
+        # Get all POS tags for a word
+        self.wordTags = defaultdict(lambda: set({}))
+        for taggedSent in taggedSentsList:
+            for word, tag in taggedSent:
+                self.wordTags[word].add(tag)
+
+        # Create a dictionaries of words and their counts for a tag
+        self.tagDict = defaultdict(lambda: defaultdict(lambda: 0))
+        for taggedSent in taggedSentsList:
+            for word, tag in taggedSent:
+                self.tagDict[tag][word] += 1
 
     def sent_count(self):
         """Total number of sentences."""
-        # WORK HERE!!
+        return self.sentsCount
 
     def token_count(self):
         """Total number of tokens."""
-        # WORK HERE!!
+        return self.tokenCount
 
     def words(self):
         """Vocabulary (set of word types)."""
-        # WORK HERE!!
+        return set(self.wordsAppearances.keys())
 
     def word_count(self):
         """Vocabulary size."""
-        # WORK HERE!!
+        return len(self.words())
 
     def word_freq(self, w):
         """Frequency of word w."""
-        # WORK HERE!!
+        return self.wordsAppearances[w]
 
     def unambiguous_words(self):
         """List of words with only one observed POS tag."""
-        # WORK HERE!!
+        return [word for word in self.words() if len(self.wordTags[word]) == 1]
 
     def ambiguous_words(self, n):
         """List of words with n different observed POS tags.
 
         n -- number of tags.
         """
-        # WORK HERE!!
+        return [word for word in self.words() if len(self.wordTags[word]) == n]
 
     def tags(self):
         """POS Tagset."""
-        # WORK HERE!!
+        return set(self.tagsAppearances.keys())
 
     def tag_count(self):
         """POS tagset size."""
-        # WORK HERE!!
+        return len(self.tags())
 
     def tag_freq(self, t):
         """Frequency of tag t."""
-        # WORK HERE!!
+        return self.tagsAppearances[t]
 
     def tag_word_dict(self, t):
         """Dictionary of words and their counts for tag t."""
-        return dict(self._tcount[t])
+        return dict(self.tagDict[t])
 
 
 if __name__ == '__main__':
     opts = docopt(__doc__)
 
     # load the data
-    corpus = SimpleAncoraCorpusReader(opts['-c'])
+    corpus = SimpleAncoraCorpusReader(opts['<path>'])
     sents = corpus.tagged_sents()
 
     # compute the statistics

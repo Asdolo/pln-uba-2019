@@ -1,4 +1,13 @@
 from collections import defaultdict
+import operator
+
+
+def cero():
+    return 0
+
+
+def dd():
+    return defaultdict(cero)
 
 
 class BadBaselineTagger:
@@ -34,12 +43,17 @@ class BadBaselineTagger:
 
 class BaselineTagger:
 
-    def __init__(self, tagged_sents, default_tag=None):
+    def __init__(self, tagged_sents, default_tag='nc0s000'):
         """
         tagged_sents -- training sentences, each one being a list of pairs.
         default_tag -- tag for unknown words.
         """
-        # WORK HERE!!
+        self.defaultTag = default_tag
+
+        self.wordTagsCount = defaultdict(dd)
+        for taggedSent in tagged_sents:
+            for word, tag in taggedSent:
+                self.wordTagsCount[word][tag] += 1
 
     def tag(self, sent):
         """Tag a sentence.
@@ -53,11 +67,15 @@ class BaselineTagger:
 
         w -- the word.
         """
-        # WORK HERE!!
+        if self.unknown(w):
+            return self.defaultTag
+
+        wordTagsDict = self.wordTagsCount[w]
+        return max(wordTagsDict.items(), key=operator.itemgetter(1))[0]
 
     def unknown(self, w):
         """Check if a word is unknown for the model.
 
         w -- the word.
         """
-        # WORK HERE!!
+        return len(self.wordTagsCount[w]) == 0

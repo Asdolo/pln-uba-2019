@@ -2,3 +2,4 @@
 ancora-3.0.1es
 .vscode
 tagging/__pycache__
+tagging/*/__pycache__
